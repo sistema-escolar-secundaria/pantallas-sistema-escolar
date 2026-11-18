@@ -1,6 +1,6 @@
 import { Role, SchoolModule } from '../core/models/profile';
 
-export const NAVIGATION: Record<Role, readonly SchoolModule[]> = {
+export const NAVIGATION = {
   admin: [
     {
       path: 'dashboard',
@@ -138,4 +138,4 @@ export const NAVIGATION: Record<Role, readonly SchoolModule[]> = {
     },
     { path: 'cuenta', title: 'Mi cuenta', description: 'Consulta la información de tu perfil.' },
   ],
-};
+} as const satisfies Record<Role, readonly SchoolModule[]>;
