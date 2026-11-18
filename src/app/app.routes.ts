@@ -1,13 +1,13 @@
 import { Route, Routes } from '@angular/router';
 import { redirectToSession, requireRole } from './core/guards/demo-role-guard';
-import { Role } from './core/models/profile';
+import { Role, SchoolModule } from './core/models/profile';
 import { NAVIGATION } from './mock-data/navigation';
 import { PROFILES } from './mock-data/profiles';
 
 const adminCatalog = () => import('./features/admin/catalog').then((m) => m.Catalog);
 const adminMonitoring = () => import('./features/admin/monitoring').then((m) => m.Monitoring);
 
-const ADMIN_PAGES: Record<string, Route['loadComponent']> = {
+const ADMIN_PAGES = {
   usuarios: adminCatalog,
   docentes: adminCatalog,
   'grados-secciones': adminCatalog,
@@ -27,7 +27,7 @@ const teacherCatalog = () =>
   import('./features/docente/teacher-catalog').then((m) => m.TeacherCatalog);
 const teacherRecords = () => import('./features/docente/records').then((m) => m.Records);
 
-const TEACHER_PAGES: Record<string, Route['loadComponent']> = {
+const TEACHER_PAGES = {
   dashboard: () => import('./features/docente/dashboard').then((m) => m.TeacherDashboard),
   cursos: teacherCatalog,
   horarios: () => import('./features/docente/schedule').then((m) => m.Schedule),
@@ -43,7 +43,7 @@ const studentCatalog = () =>
   import('./features/alumno/student-catalog').then((m) => m.StudentCatalog);
 const studentGrades = () => import('./features/alumno/grades').then((m) => m.StudentGrades);
 
-const STUDENT_PAGES: Record<string, Route['loadComponent']> = {
+const STUDENT_PAGES = {
   dashboard: () => import('./features/alumno/dashboard').then((m) => m.StudentDashboard),
   cursos: studentCatalog,
   horarios: studentCatalog,
@@ -55,9 +55,11 @@ const STUDENT_PAGES: Record<string, Route['loadComponent']> = {
   cuenta: studentCatalog,
 };
 
-const PROFILE_PAGES = { admin: ADMIN_PAGES, docente: TEACHER_PAGES, alumno: STUDENT_PAGES };
-
-function profileRoute(role: Role): Route {
+function profileRoute<Path extends string>(
+  role: Role,
+  modules: readonly (SchoolModule & { path: Path })[],
+  pages: Record<NoInfer<Path>, NonNullable<Route['loadComponent']>>,
+): Route {
   return {
     path: role,
     canActivate: [requireRole(role)],
@@ -66,16 +68,11 @@ function profileRoute(role: Role): Route {
       import('./layouts/school-layout/school-layout').then((m) => m.SchoolLayout),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      ...NAVIGATION[role].map((module) => ({
+      ...modules.map((module) => ({
         path: module.path,
         title: module.title + ' · ' + PROFILES[role].label,
         data: { module },
-        loadComponent:
-          PROFILE_PAGES[role][module.path] ??
-          (() =>
-            import('./shared/components/module-preview/module-preview').then(
-              (m) => m.ModulePreview,
-            )),
+        loadComponent: pages[module.path],
       })),
     ],
   };
@@ -87,9 +84,9 @@ export const routes: Routes = [
     title: 'Iniciar sesión · Sistema de Gestión Escolar',
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
-  profileRoute('admin'),
-  profileRoute('docente'),
-  profileRoute('alumno'),
+  profileRoute('admin', NAVIGATION.admin, ADMIN_PAGES),
+  profileRoute('docente', NAVIGATION.docente, TEACHER_PAGES),
+  profileRoute('alumno', NAVIGATION.alumno, STUDENT_PAGES),
   { path: '', pathMatch: 'full', redirectTo: redirectToSession },
   { path: '**', redirectTo: redirectToSession },
 ];
