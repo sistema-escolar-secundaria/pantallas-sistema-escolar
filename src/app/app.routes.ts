@@ -27,7 +27,23 @@ const TEACHER_PAGES: Record<string, Route['loadComponent']> = {
   comunicados: teacherCatalog,
 };
 
-const PROFILE_PAGES = { admin: ADMIN_PAGES, docente: TEACHER_PAGES, alumno: undefined };
+const studentCatalog = () =>
+  import('./features/alumno/student-catalog').then((m) => m.StudentCatalog);
+const studentGrades = () => import('./features/alumno/grades').then((m) => m.StudentGrades);
+
+const STUDENT_PAGES: Record<string, Route['loadComponent']> = {
+  dashboard: () => import('./features/alumno/dashboard').then((m) => m.StudentDashboard),
+  cursos: studentCatalog,
+  horarios: studentCatalog,
+  notas: studentGrades,
+  boleta: studentGrades,
+  'aula-virtual': studentCatalog,
+  materiales: studentCatalog,
+  documentos: studentCatalog,
+  cuenta: studentCatalog,
+};
+
+const PROFILE_PAGES = { admin: ADMIN_PAGES, docente: TEACHER_PAGES, alumno: STUDENT_PAGES };
 
 function profileRoute(role: Role): Route {
   return {
@@ -43,7 +59,7 @@ function profileRoute(role: Role): Route {
         title: module.title + ' · ' + PROFILES[role].label,
         data: { module },
         loadComponent:
-          PROFILE_PAGES[role]?.[module.path] ??
+          PROFILE_PAGES[role][module.path] ??
           (() =>
             import('./shared/components/module-preview/module-preview').then(
               (m) => m.ModulePreview,

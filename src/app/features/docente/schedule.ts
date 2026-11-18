@@ -8,7 +8,7 @@ import { TeacherStore } from './teacher-store';
 @Component({
   imports: [MatFormFieldModule, MatInputModule],
   templateUrl: './schedule.html',
-  styleUrl: './teacher.scss',
+  styleUrl: '../../shared/ui/school-pages.scss',
 })
 export class Schedule {
   protected readonly store = inject(TeacherStore);

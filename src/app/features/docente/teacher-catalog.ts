@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ANNOUNCEMENTS, EVALUATIONS, MATERIALS } from '../../mock-data/teacher';
+import { downloadFile } from '../../shared/ui/download';
 import { normalize, shortDate } from '../admin/admin-data';
 import { Announcement, Material } from './teacher-data';
 import { TeacherStore } from './teacher-store';
@@ -30,7 +31,7 @@ class AnnouncementDialog {
 @Component({
   imports: [MatButtonModule, MatFormFieldModule, MatInputModule, RouterLink],
   templateUrl: './teacher-catalog.html',
-  styleUrl: './teacher.scss',
+  styleUrl: '../../shared/ui/school-pages.scss',
 })
 export class TeacherCatalog {
   protected readonly module = inject(ActivatedRoute).snapshot.data['module'];
@@ -76,11 +77,6 @@ export class TeacherCatalog {
     const text = [item.title, this.store.contextLabel(item.assignmentId), '', item.content].join(
       '\n',
     );
-    const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = item.id + '.txt';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadFile(item.id + '.txt', text, 'text/plain;charset=utf-8');
   }
 }

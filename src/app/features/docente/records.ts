@@ -25,7 +25,7 @@ import { TeacherStore } from './teacher-store';
 @Component({
   imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './records.html',
-  styleUrl: './teacher.scss',
+  styleUrl: '../../shared/ui/school-pages.scss',
 })
 export class Records {
   private readonly route = inject(ActivatedRoute);

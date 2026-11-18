@@ -1,0 +1,148 @@
+<header class="heading">
+  <h1>{{ module.title }}</h1>
+  <p>{{ module.description }}</p>
+</header>
+
+@if (module.path === 'cuenta') {
+  <section class="panel">
+    <h2>{{ store.student()?.name ?? profile.name }}</h2>
+    <p><span class="pill">Perfil de demostración</span></p>
+    <dl class="admin-details">
+      <div>
+        <dt>Correo electrónico</dt>
+        <dd>{{ profile.email }}</dd>
+      </div>
+      <div>
+        <dt>Perfil</dt>
+        <dd>{{ profile.label }}</dd>
+      </div>
+      @if (store.student(); as student) {
+        <div>
+          <dt>Código</dt>
+          <dd>{{ student.code }}</dd>
+        </div>
+      }
+      @if (store.enrollment()) {
+        <div>
+          <dt>Grado y sección</dt>
+          <dd>{{ store.placement() }}</dd>
+        </div>
+      }
+    </dl>
+    <div class="actions">
+      <button matButton="outlined" (click)="signOut()">Cerrar mi sesión</button>
+    </div>
+  </section>
+} @else if (store.enrollment()) {
+  @switch (module.path) {
+    @case ('cursos') {
+      <div class="grid">
+        @for (item of store.courses(); track item.id) {
+          <section class="panel">
+            <h2>{{ item.course }}</h2>
+            <p class="muted">{{ store.placement() }}</p>
+            <ul class="reset-list">
+              @for (competency of item.competencies; track competency.id) {
+                <li>{{ competency.label }}</li>
+              }
+            </ul>
+            <a matButton routerLink="/alumno/aula-virtual">Abrir aula virtual</a>
+          </section>
+        } @empty {
+          <p class="muted" role="status">Tu sección todavía no tiene cursos asignados.</p>
+        }
+      </div>
+    }
+    @case ('horarios') {
+      @if (store.lessons().length) {
+        <div class="filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Día</mat-label>
+            <select matNativeControl #dayFilter (change)="day.set(dayFilter.value)">
+              <option value="">Toda la semana</option>
+              @for (item of weekdays; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </mat-form-field>
+        </div>
+        <div class="week">
+          @for (item of days(); track item.day) {
+            <section class="panel" [class.filtered]="!!day()">
+              <h2>{{ item.day }}</h2>
+              <ul class="reset-list">
+                @for (lesson of item.lessons; track lesson.start + lesson.assignmentId) {
+                  <li>
+                    <strong>{{ lesson.start }}–{{ lesson.end }}</strong
+                    ><small>{{ store.courseName(lesson.assignmentId) }}</small>
+                  </li>
+                } @empty {
+                  <li class="muted">Sin clases programadas.</li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+      } @else {
+        <p class="muted" role="status">Todavía no tienes clases asignadas.</p>
+      }
+    }
+    @case ('aula-virtual') {
+      <div class="grid">
+        @for (item of store.activities(); track item.id) {
+          <section class="panel">
+            <h2>{{ item.title }}</h2>
+            <p class="muted">
+              {{ store.courseName(item.assignmentId) }} · {{ shortDate(item.date) }}
+            </p>
+            <button matButton="outlined" (click)="showActivity(item)">Ver actividad</button>
+          </section>
+        } @empty {
+          <p role="status" class="muted">Todavía no tienes actividades asignadas.</p>
+        }
+      </div>
+    }
+    @case ('materiales') {
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Asignatura</mat-label>
+          <select matNativeControl #courseFilter (change)="course.set(courseFilter.value)">
+            <option value="">Todas las asignaturas</option>
+            @for (item of store.courses(); track item.id) {
+              <option [value]="item.id">{{ item.course }}</option>
+            }
+          </select>
+        </mat-form-field>
+      </div>
+      <div class="grid">
+        @for (item of materials(); track item.id) {
+          <section class="panel">
+            <h2>{{ item.title }}</h2>
+            <p class="muted">{{ store.courseName(item.assignmentId) }}</p>
+            <button matButton="outlined" (click)="downloadMaterial(item)">
+              Descargar material (.txt)
+            </button>
+          </section>
+        } @empty {
+          <p role="status" class="muted">No hay materiales para esta selección.</p>
+        }
+      </div>
+    }
+    @case ('documentos') {
+      <div class="grid">
+        <section class="panel">
+          <h2>Constancia de matrícula</h2>
+          <p class="muted">Año académico {{ year }} · {{ store.placement() }}</p>
+          <button matButton="outlined" (click)="showEnrollment()">Ver constancia</button>
+        </section>
+        <section class="panel">
+          <h2>Boleta de notas</h2>
+          <p class="muted">Niveles de logro y conclusiones por bimestre.</p>
+          <a matButton="outlined" routerLink="/alumno/boleta">Abrir boleta</a>
+        </section>
+      </div>
+    }
+  }
+} @else {
+  <p class="panel muted" role="status">No tienes una matrícula para el año académico {{ year }}.</p>
+}

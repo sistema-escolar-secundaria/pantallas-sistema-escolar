@@ -1,0 +1,79 @@
+<header class="heading">
+  <h1>Panel del alumno</h1>
+  @if (store.student(); as student) {
+    <p>Te damos la bienvenida, {{ student.name }}.</p>
+  }
+  @if (store.enrollment(); as enrollment) {
+    <p>{{ store.placement() }} · Año académico {{ enrollment.year }}</p>
+  }
+</header>
+@if (store.enrollment()) {
+  <div class="grid">
+    <section class="panel">
+      <h2>Clases del día</h2>
+      <p class="muted">Miércoles {{ date }}</p>
+      <ul class="reset-list">
+        @for (item of today(); track item.start + item.assignmentId) {
+          <li>
+            <strong>{{ item.start }}–{{ item.end }}</strong
+            ><small>{{ store.courseName(item.assignmentId) }}</small>
+          </li>
+        } @empty {
+          <li class="muted">No tienes clases programadas para hoy.</li>
+        }
+      </ul>
+      <a matButton routerLink="/alumno/horarios">Ver horario semanal</a>
+    </section>
+    <section class="panel">
+      <h2>Cursos matriculados</h2>
+      <ul class="reset-list">
+        @for (item of store.courses(); track item.id) {
+          <li>{{ item.course }}</li>
+        } @empty {
+          <li class="muted">Tu sección todavía no tiene cursos asignados.</li>
+        }
+      </ul>
+      <a matButton routerLink="/alumno/cursos">Ver mis cursos</a>
+    </section>
+    <section class="panel">
+      <h2>Próximas evaluaciones</h2>
+      <ul class="reset-list">
+        @for (item of store.upcoming(); track item.id) {
+          <li>
+            <strong>{{ item.title }}</strong
+            ><small>{{ shortDate(item.date) }} · {{ store.courseName(item.assignmentId) }}</small>
+          </li>
+        } @empty {
+          <li class="muted">No hay evaluaciones próximas.</li>
+        }
+      </ul>
+    </section>
+    <section class="panel">
+      <h2>Notas recientes</h2>
+      <ul class="reset-list">
+        @for (item of store.recent(); track item.key + item.term) {
+          <li>
+            <span class="pill">{{ item.level }}</span> {{ item.course
+            }}<small>{{ item.competency }} · {{ item.term }}.° bimestre</small>
+          </li>
+        } @empty {
+          <li class="muted">Todavía no hay niveles registrados por el docente.</li>
+        }
+      </ul>
+      <a matButton routerLink="/alumno/notas">Ver mis notas</a>
+    </section>
+    <section class="panel">
+      <h2>Comunicados</h2>
+      <ul class="reset-list">
+        @for (item of announcements; track item.id) {
+          <li>
+            <button matButton (click)="open(item)">{{ item.title }}</button
+            ><small>{{ shortDate(item.date) }}</small>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+} @else {
+  <p class="panel muted" role="status">No tienes una matrícula para el año académico 2026.</p>
+}

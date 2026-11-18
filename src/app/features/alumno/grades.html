@@ -1,0 +1,67 @@
+<header class="heading">
+  <h1>{{ isReport ? 'Boleta de notas' : 'Mis notas' }}</h1>
+  <p>Consulta los niveles de logro por bimestre y competencia.</p>
+</header>
+@if (store.enrollment() && store.student(); as student) {
+  <section class="panel">
+    <h2>{{ student.name }}</h2>
+    <p class="muted">Año académico {{ year }} · {{ store.placement() }}</p>
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Bimestre</mat-label>
+        <select matNativeControl #period (change)="setTerm(period.value)">
+          @for (item of terms; track item) {
+            <option [value]="item" [selected]="item === term()">{{ item }}.° bimestre</option>
+          }
+        </select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Origen de las calificaciones</mat-label>
+        <select matNativeControl #source (change)="setMode(source.value)">
+          <option value="example" [selected]="mode() === 'example'">{{ modeNames.example }}</option>
+          <option value="recorded" [selected]="mode() === 'recorded'">
+            {{ modeNames.recorded }}
+          </option>
+        </select>
+      </mat-form-field>
+    </div>
+    <p aria-live="polite">
+      <span class="pill">{{ modeNames[mode()] }}</span>
+    </p>
+    @if (rows().length) {
+      <div class="table-scroll" tabindex="0" aria-label="Calificaciones por competencia">
+        <table aria-label="Niveles de logro">
+          <thead>
+            <tr>
+              <th scope="col">Asignatura</th>
+              <th scope="col">Competencia</th>
+              <th scope="col">Nivel</th>
+              <th scope="col">Conclusión descriptiva</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.key) {
+              <tr>
+                <td>{{ row.course }}</td>
+                <th scope="row">{{ row.competency }}</th>
+                <td>
+                  <span class="pill">{{ row.level || 'Pendiente' }}</span>
+                </td>
+                <td class="conclusion">{{ row.observation || 'Sin conclusión' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (isReport) {
+        <div class="actions">
+          <button matButton="filled" (click)="download()">Descargar boleta (HTML)</button>
+        </div>
+      }
+    } @else {
+      <p class="muted" role="status">Tu sección todavía no tiene cursos asignados.</p>
+    }
+  </section>
+} @else {
+  <p class="panel muted" role="status">No tienes una matrícula para el año académico {{ year }}.</p>
+}

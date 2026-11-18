@@ -9,7 +9,7 @@ import { TeacherStore } from './teacher-store';
 @Component({
   imports: [MatButtonModule, RouterLink],
   templateUrl: './dashboard.html',
-  styleUrl: './teacher.scss',
+  styleUrl: '../../shared/ui/school-pages.scss',
 })
 export class TeacherDashboard {
   protected readonly store = inject(TeacherStore);
