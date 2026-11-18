@@ -1,0 +1,141 @@
+<header class="admin-heading">
+  <div>
+    <h1>Pagos</h1>
+    <p>Consulta pensiones y registra pagos de la muestra de demostración.</p>
+  </div>
+</header>
+<section class="admin-metrics" aria-label="Indicadores financieros">
+  <div class="admin-metric">
+    <span>Pensiones pendientes</span><strong>{{ pending().length }}</strong>
+  </div>
+  <div class="admin-metric">
+    <span>Saldo vencido</span><strong>{{ soles(lateBalance()) }}</strong>
+  </div>
+  <div class="admin-metric">
+    <span>Morosidad de la muestra</span><strong>{{ delinquency() }} %</strong>
+  </div>
+  <div class="admin-metric">
+    <span>Recaudado en la muestra</span><strong>{{ soles(collected()) }}</strong>
+  </div>
+</section>
+<section class="admin-card" aria-label="Gestión de pensiones">
+  <mat-tab-group>
+    <mat-tab label="Pendientes">
+      @if (pending().length) {
+        <div class="admin-scroll" tabindex="0" aria-label="Listado de pensiones pendientes">
+          <table class="admin-table" aria-label="Pensiones pendientes">
+            <thead>
+              <tr>
+                <th scope="col">Estudiante</th>
+                <th scope="col">Concepto</th>
+                <th scope="col">Vencimiento</th>
+                <th scope="col">Importe</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of pending(); track row.pension.id) {
+                <tr>
+                  <td>{{ row.student.name }}</td>
+                  <td>{{ row.pension.concept }}</td>
+                  <td>{{ shortDate(row.pension.due) }}</td>
+                  <td>{{ soles(row.pension.amount) }}</td>
+                  <td>
+                    <span class="admin-chip" [class.alert]="row.pension.due < today">{{
+                      row.pension.due < today ? 'Vencida' : 'Pendiente'
+                    }}</span>
+                  </td>
+                  <td><button matButton (click)="register(row.pension)">Registrar pago</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="admin-note" role="status">No hay pensiones pendientes.</p>
+      }
+    </mat-tab>
+    <mat-tab label="Historial">
+      <div class="admin-scroll" tabindex="0" aria-label="Listado de pagos realizados">
+        <table class="admin-table" aria-label="Pagos realizados">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Estudiante</th>
+              <th scope="col">Concepto</th>
+              <th scope="col">Importe</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of history(); track row.pension.id) {
+              @if (row.payment; as payment) {
+                <tr>
+                  <td>{{ payment.id }}</td>
+                  <td>{{ row.student.name }}</td>
+                  <td>{{ row.pension.concept }}</td>
+                  <td>{{ soles(row.pension.amount) }}</td>
+                  <td>{{ shortDate(payment.date) }}</td>
+                  <td><button matButton (click)="receipt(payment)">Ver comprobante</button></td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-tab>
+    <mat-tab label="Estados de cuenta">
+      <div class="admin-form">
+        <mat-form-field appearance="outline"
+          ><mat-label>Estudiante</mat-label>
+          <select
+            matNativeControl
+            #accountSelect
+            [value]="accountId()"
+            (change)="accountId.set(accountSelect.value)"
+          >
+            <option value="">Seleccionar estudiante</option>
+            @for (student of store.data().students; track student.id) {
+              <option [value]="student.id">{{ student.name }} · {{ student.code }}</option>
+            }
+          </select>
+        </mat-form-field>
+      </div>
+      @if (accountId()) {
+        <p><strong>Saldo pendiente</strong> · {{ soles(accountBalance()) }}</p>
+        @if (account().length) {
+          <div class="admin-scroll" tabindex="0" aria-label="Detalle del estado de cuenta">
+            <table class="admin-table" aria-label="Estado de cuenta">
+              <thead>
+                <tr>
+                  <th scope="col">Concepto</th>
+                  <th scope="col">Vencimiento</th>
+                  <th scope="col">Importe</th>
+                  <th scope="col">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of account(); track row.pension.id) {
+                  <tr>
+                    <td>{{ row.pension.concept }}</td>
+                    <td>{{ shortDate(row.pension.due) }}</td>
+                    <td>{{ soles(row.pension.amount) }}</td>
+                    <td>
+                      {{
+                        row.payment ? 'Pagada' : row.pension.due < today ? 'Vencida' : 'Pendiente'
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="admin-note">El estudiante no tiene pensiones registradas.</p>
+        }
+      }
+    </mat-tab>
+  </mat-tab-group>
+</section>

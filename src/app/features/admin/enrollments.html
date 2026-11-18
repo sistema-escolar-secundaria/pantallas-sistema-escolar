@@ -1,0 +1,158 @@
+<header class="admin-heading">
+  <div>
+    <h1>Matrículas</h1>
+    <p>Gestiona la inscripción y consulta los cupos por sección.</p>
+  </div>
+  @if (!creating()) {
+    <button matButton="filled" (click)="start()">Nueva matrícula</button>
+  }
+</header>
+
+@if (creating()) {
+  <section class="admin-card" aria-labelledby="enrollment-title">
+    <div class="admin-heading">
+      <h2 id="enrollment-title">Nueva matrícula</h2>
+      <button matButton (click)="creating.set(false)">Cancelar matrícula</button>
+    </div>
+    <mat-vertical-stepper linear aria-label="Pasos de matrícula">
+      <mat-step label="Buscar estudiante" [completed]="!!studentId()">
+        <div class="admin-filters">
+          <mat-form-field appearance="outline"
+            ><mat-label>Buscar estudiante</mat-label>
+            <input
+              matInput
+              #searchInput
+              [value]="query()"
+              (input)="search(searchInput.value)"
+              placeholder="Nombre, DNI o código"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline"
+            ><mat-label>Estudiante</mat-label>
+            <select
+              matNativeControl
+              #studentSelect
+              [value]="studentId()"
+              (change)="studentId.set(studentSelect.value)"
+            >
+              <option value="">Seleccionar estudiante</option>
+              @for (student of students(); track student.id) {
+                <option [value]="student.id">{{ student.name }} · {{ student.code }}</option>
+              }
+            </select>
+          </mat-form-field>
+        </div>
+        @if (!students().length) {
+          <p role="status" class="admin-note">No se encontraron estudiantes.</p>
+        }
+        <button matButton="filled" matStepperNext [disabled]="!studentId()">Continuar</button>
+      </mat-step>
+
+      <mat-step label="Año, grado y sección" [completed]="!!sectionId() && !issue()">
+        <div class="admin-filters">
+          <mat-form-field appearance="outline"
+            ><mat-label>Año académico</mat-label>
+            <select
+              matNativeControl
+              #yearSelect
+              [value]="year()"
+              (change)="year.set(+yearSelect.value)"
+            >
+              @for (item of years; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </mat-form-field>
+          <mat-form-field appearance="outline"
+            ><mat-label>Grado y sección</mat-label>
+            <select
+              matNativeControl
+              #sectionSelect
+              [value]="sectionId()"
+              (change)="sectionId.set(sectionSelect.value)"
+            >
+              <option value="">Seleccionar sección</option>
+              @for (section of store.sections; track section.id) {
+                <option [value]="section.id">{{ sectionLabel(section) }}</option>
+              }
+            </select>
+          </mat-form-field>
+        </div>
+        @if (sectionId()) {
+          <p aria-live="polite" class="admin-note">Cupos disponibles · {{ seats() }}</p>
+          @if (issue()) {
+            <p role="alert" class="admin-error">{{ issue() }}</p>
+          }
+        }
+        <div class="admin-actions">
+          <button matButton matStepperPrevious>Atrás</button>
+          <button matButton="filled" matStepperNext [disabled]="!!issue()">
+            Revisar matrícula
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Revisar y confirmar">
+        @if (studentId() && sectionId()) {
+          <dl class="admin-details">
+            <div>
+              <dt>Estudiante</dt>
+              <dd>{{ store.student(studentId()).name }}</dd>
+            </div>
+            <div>
+              <dt>Año académico</dt>
+              <dd>{{ year() }}</dd>
+            </div>
+            <div>
+              <dt>Grado y sección</dt>
+              <dd>{{ sectionLabel(store.section(sectionId())) }}</dd>
+            </div>
+            <div>
+              <dt>Cupos disponibles</dt>
+              <dd>{{ seats() }}</dd>
+            </div>
+          </dl>
+        }
+        @if (error()) {
+          <p role="alert" class="admin-error">{{ error() }}</p>
+        }
+        <div class="admin-actions">
+          <button matButton matStepperPrevious>Atrás</button>
+          <button matButton="filled" (click)="confirm()" [disabled]="!!issue()">
+            Confirmar matrícula
+          </button>
+        </div>
+      </mat-step>
+    </mat-vertical-stepper>
+  </section>
+}
+
+<section class="admin-card">
+  <h2>Matrículas registradas</h2>
+  <div class="admin-scroll" tabindex="0" aria-label="Listado de matrículas">
+    <table class="admin-table" aria-label="Matrículas registradas">
+      <thead>
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Estudiante</th>
+          <th scope="col">Año</th>
+          <th scope="col">Grado y sección</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of records(); track item.id) {
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ store.student(item.studentId).name }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ sectionLabel(store.section(item.sectionId)) }}</td>
+            <td>{{ shortDate(item.date) }}</td>
+            <td><button matButton (click)="document(item)">Ver constancia</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

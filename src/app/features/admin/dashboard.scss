@@ -1,0 +1,63 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr));
+  gap: 1rem;
+
+  > .admin-card {
+    margin: 0;
+  }
+}
+
+.chart {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(0.63rem, 1.5vw, 0.8rem);
+  color: var(--school-muted);
+
+  li {
+    display: grid;
+    gap: 0.35rem;
+  }
+}
+
+.bar-area {
+  height: 8rem;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  border-bottom: 1px solid var(--school-border);
+}
+
+.bar {
+  width: 58%;
+  background: #326bd0;
+  border-radius: 0.45rem 0.45rem 0 0;
+}
+
+.revenue {
+  background: #287680;
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  li {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.6rem 0;
+    border-block-end: 1px solid var(--school-border);
+  }
+  li:last-child {
+    border: 0;
+  }
+  span {
+    color: var(--school-muted);
+    font-size: 0.85rem;
+  }
+}

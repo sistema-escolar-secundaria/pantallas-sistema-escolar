@@ -1,0 +1,117 @@
+<header class="admin-heading">
+  <div>
+    <h1>Estudiantes</h1>
+    <p>Consulta y actualiza el padrón escolar.</p>
+  </div>
+  <button matButton="filled" (click)="edit()">Registrar estudiante</button>
+</header>
+<section class="admin-card" aria-labelledby="student-list">
+  <h2 id="student-list">Padrón de estudiantes</h2>
+  <div class="admin-filters">
+    <mat-form-field appearance="outline"
+      ><mat-label>Buscar estudiante</mat-label>
+      <input
+        matInput
+        #search
+        [value]="query()"
+        (input)="query.set(search.value)"
+        placeholder="Nombre, DNI o código"
+      />
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>Nivel</mat-label>
+      <select matNativeControl #levelInput [value]="level()" (change)="level.set(levelInput.value)">
+        <option value="">Todos</option>
+        <option>Primaria</option>
+        <option>Secundaria</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>Grado</mat-label>
+      <select matNativeControl #gradeInput [value]="grade()" (change)="grade.set(gradeInput.value)">
+        <option value="">Todos</option>
+        @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+          <option [value]="item">{{ item }}.°</option>
+        }
+      </select>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>Sección</mat-label>
+      <select
+        matNativeControl
+        #sectionInput
+        [value]="section()"
+        (change)="section.set(sectionInput.value)"
+      >
+        <option value="">Todas</option>
+        <option>A</option>
+        <option>B</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>Estado</mat-label>
+      <select
+        matNativeControl
+        #statusInput
+        [value]="status()"
+        (change)="status.set(statusInput.value)"
+      >
+        <option value="">Todos</option>
+        <option>Activo</option>
+        <option>Inactivo</option>
+      </select>
+    </mat-form-field>
+  </div>
+  <button matButton (click)="clearFilters()">Limpiar filtros</button>
+  @if (rows().length) {
+    <div class="admin-scroll" tabindex="0" aria-label="Tabla del padrón">
+      <table mat-table [dataSource]="rows()" class="admin-table" aria-label="Padrón de estudiantes">
+        <ng-container matColumnDef="code"
+          ><th mat-header-cell *matHeaderCellDef>Código</th>
+          <td mat-cell *matCellDef="let row">{{ row.student.code }}</td></ng-container
+        >
+        <ng-container matColumnDef="name"
+          ><th mat-header-cell *matHeaderCellDef>Nombres y apellidos</th>
+          <td mat-cell *matCellDef="let row">{{ row.student.name }}</td></ng-container
+        >
+        <ng-container matColumnDef="dni"
+          ><th mat-header-cell *matHeaderCellDef>DNI</th>
+          <td mat-cell *matCellDef="let row">{{ row.student.dni }}</td></ng-container
+        >
+        <ng-container matColumnDef="level"
+          ><th mat-header-cell *matHeaderCellDef>Nivel</th>
+          <td mat-cell *matCellDef="let row">{{ row.placement.level }}</td></ng-container
+        >
+        <ng-container matColumnDef="grade"
+          ><th mat-header-cell *matHeaderCellDef>Grado</th>
+          <td mat-cell *matCellDef="let row">{{ row.placement.grade }}.°</td></ng-container
+        >
+        <ng-container matColumnDef="section"
+          ><th mat-header-cell *matHeaderCellDef>Sección</th>
+          <td mat-cell *matCellDef="let row">{{ row.placement.letter }}</td></ng-container
+        >
+        <ng-container matColumnDef="status"
+          ><th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="admin-chip" [class.neutral]="row.student.status === 'Inactivo'">{{
+              row.student.status
+            }}</span>
+          </td></ng-container
+        >
+        <ng-container matColumnDef="actions"
+          ><th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="admin-actions">
+              <button matButton (click)="view(row.student)">Consultar</button
+              ><button matButton (click)="edit(row.student)">Editar</button>
+            </div>
+          </td></ng-container
+        >
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+  } @else {
+    <p class="admin-note" role="status">No se encontraron estudiantes con esos filtros.</p>
+  }
+</section>

@@ -1,0 +1,83 @@
+<header class="admin-heading">
+  <div>
+    <h1>Resumen general</h1>
+    <p>Año escolar 2026 · Primaria y Secundaria</p>
+  </div>
+  <a matButton="filled" routerLink="/admin/matriculas">Ir a matrículas</a>
+</header>
+<span class="admin-chip">Cifras institucionales ficticias</span>
+<section class="admin-metrics" aria-label="Indicadores institucionales">
+  @for (metric of metrics; track metric.label) {
+    <div class="admin-metric">
+      <span>{{ metric.label }}</span
+      ><strong>{{ metric.value }}</strong>
+    </div>
+  }
+</section>
+<div class="dashboard-grid">
+  <section class="admin-card">
+    <h2>Asistencia mensual</h2>
+    <ul class="chart">
+      @for (month of attendance; track month.label) {
+        <li>
+          <span>{{ month.value }} %</span>
+          <div class="bar-area" aria-hidden="true">
+            <div class="bar" [style.height.%]="month.value"></div>
+          </div>
+          <span>{{ month.label }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+  <section class="admin-card">
+    <h2>Recaudación mensual</h2>
+    <ul class="chart">
+      @for (month of revenue; track month.label) {
+        <li>
+          <span>{{ soles(month.value) }}</span>
+          <div class="bar-area" aria-hidden="true">
+            <div class="bar revenue" [style.height.%]="month.value / 550"></div>
+          </div>
+          <span>{{ month.label }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+  <section class="admin-card">
+    <h2>Actividad reciente</h2>
+    <ul class="timeline">
+      @for (item of store.data().activity.slice(0, 5); track $index) {
+        <li>
+          <strong>{{ item.label }}</strong
+          ><span>{{ item.detail }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+  <section class="admin-card">
+    <h2>Últimas matrículas</h2>
+    <ul class="timeline">
+      @for (item of recent(); track item.id) {
+        <li>
+          <strong>{{ store.student(item.studentId).name }}</strong
+          ><span
+            >{{ sectionLabel(store.section(item.sectionId)) }} · {{ shortDate(item.date) }}</span
+          >
+        </li>
+      }
+    </ul>
+  </section>
+  <section class="admin-card">
+    <h2>Avisos institucionales</h2>
+    <ul class="timeline">
+      <li>
+        <strong>Cierre del cuarto bimestre</strong
+        ><span>Entrega de actas y revisión de asistencia en diciembre.</span>
+      </li>
+      <li>
+        <strong>Matrículas 2027</strong
+        ><span>Consulta la disponibilidad de secciones desde el módulo de matrículas.</span>
+      </li>
+    </ul>
+  </section>
+</div>
