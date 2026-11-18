@@ -1,0 +1,148 @@
+<header class="heading">
+  <h1>{{ module.title }}</h1>
+  <p>{{ module.description }}</p>
+</header>
+
+@if (module.path === 'evaluaciones' || module.path === 'materiales') {
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Curso y sección</mat-label>
+      <select matNativeControl #course (change)="assignment.set(course.value)">
+        <option value="">Todos los cursos</option>
+        @for (item of store.assignments; track item.id) {
+          <option [value]="item.id">{{ store.contextLabel(item.id) }}</option>
+        }
+      </select>
+    </mat-form-field>
+    @if (module.path === 'evaluaciones') {
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <select matNativeControl #state (change)="status.set(state.value)">
+          <option value="">Todos los estados</option>
+          @for (item of statuses; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+  </div>
+}
+
+@switch (module.path) {
+  @case ('cursos') {
+    <div class="grid">
+      @for (item of store.assignments; track item.id) {
+        <section class="panel">
+          <h2>{{ item.course }}</h2>
+          <p class="muted">
+            {{ store.placement(item.sectionId) }} · {{ store.roster(item.id).length }} estudiantes
+          </p>
+          <div class="actions">
+            <a
+              matButton="outlined"
+              routerLink="/docente/asistencia"
+              [queryParams]="{ curso: item.id }"
+              >Asistencia</a
+            >
+            <a matButton="outlined" routerLink="/docente/notas" [queryParams]="{ curso: item.id }"
+              >Registro de notas</a
+            >
+          </div>
+        </section>
+      }
+    </div>
+  }
+  @case ('evaluaciones') {
+    <div class="grid">
+      @for (row of evaluations(); track row.item.id) {
+        <section class="panel">
+          <h2>{{ row.item.title }}</h2>
+          <p class="muted">{{ store.contextLabel(row.item.assignmentId) }}</p>
+          <p>{{ shortDate(row.item.date) }} · {{ row.item.term }}.° bimestre</p>
+          <span class="pill">{{ row.status }}</span>
+          <div class="actions">
+            <a
+              matButton="outlined"
+              routerLink="/docente/notas"
+              [queryParams]="{
+                curso: row.item.assignmentId,
+                bimestre: row.item.term,
+                competencia: row.item.competencyId,
+              }"
+              >Ver registro de notas</a
+            >
+          </div>
+        </section>
+      } @empty {
+        <p role="status" class="muted">No hay evaluaciones para esos filtros.</p>
+      }
+    </div>
+  }
+  @case ('materiales') {
+    <div class="grid">
+      @for (item of materials(); track item.id) {
+        <section class="panel">
+          <h2>{{ item.title }}</h2>
+          <p class="muted">{{ store.contextLabel(item.assignmentId) }}</p>
+          <button matButton="outlined" (click)="download(item)">Descargar material (.txt)</button>
+        </section>
+      } @empty {
+        <p role="status" class="muted">No hay materiales para este curso.</p>
+      }
+    </div>
+  }
+  @case ('estudiantes') {
+    <section class="panel">
+      <div class="filters">
+        <mat-form-field appearance="outline"
+          ><mat-label>Buscar estudiante</mat-label>
+          <input matInput #search (input)="query.set(search.value)" placeholder="Nombre o código" />
+        </mat-form-field>
+        <mat-form-field appearance="outline"
+          ><mat-label>Sección</mat-label>
+          <select matNativeControl #placement (change)="section.set(placement.value)">
+            <option value="">Todas las secciones</option>
+            @for (item of sections; track item) {
+              <option [value]="item">{{ store.placement(item) }}</option>
+            }
+          </select>
+        </mat-form-field>
+      </div>
+      @if (students().length) {
+        <div class="table-scroll" tabindex="0" aria-label="Padrón por sección">
+          <table aria-label="Estudiantes matriculados">
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Estudiante</th>
+                <th scope="col">Sección</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of students(); track row.student.id + row.section) {
+                <tr>
+                  <td>{{ row.student.code }}</td>
+                  <th scope="row">{{ row.student.name }}</th>
+                  <td>{{ store.placement(row.section) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p role="status" class="muted">No hay estudiantes para esos filtros.</p>
+      }
+    </section>
+  }
+  @case ('comunicados') {
+    <div class="grid">
+      @for (item of announcements; track item.id) {
+        <section class="panel">
+          <h2>{{ item.title }}</h2>
+          <p class="muted">{{ shortDate(item.date) }}</p>
+          <button matButton="outlined" (click)="open(item)">Leer comunicado</button>
+        </section>
+      }
+    </div>
+  }
+}

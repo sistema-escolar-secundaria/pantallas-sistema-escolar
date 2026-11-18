@@ -1,0 +1,159 @@
+<header class="heading">
+  <h1>{{ isGrades ? 'Registro de notas' : 'Asistencia' }}</h1>
+  <p>
+    {{
+      isGrades
+        ? 'Registra los niveles de logro y las observaciones por competencia.'
+        : 'Registra la asistencia por curso, sección y fecha.'
+    }}
+  </p>
+</header>
+
+<section class="panel">
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Curso y sección</mat-label>
+      <select
+        matNativeControl
+        [ngModel]="assignment().id"
+        [disabled]="saving()"
+        (ngModelChange)="select({ curso: $event, competencia: null })"
+      >
+        @for (item of store.assignments; track item.id) {
+          <option [value]="item.id">{{ store.contextLabel(item.id) }}</option>
+        }
+      </select>
+    </mat-form-field>
+    @if (isGrades) {
+      <mat-form-field appearance="outline">
+        <mat-label>Bimestre</mat-label>
+        <select
+          matNativeControl
+          [ngModel]="term()"
+          [disabled]="saving()"
+          (ngModelChange)="select({ bimestre: $event })"
+        >
+          @for (item of terms; track item) {
+            <option [value]="item">{{ item }}.° bimestre</option>
+          }
+        </select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Competencia</mat-label>
+        <select
+          matNativeControl
+          [ngModel]="competency().id"
+          [disabled]="saving()"
+          (ngModelChange)="select({ competencia: $event })"
+        >
+          @for (item of assignment().competencies; track item.id) {
+            <option [value]="item.id">{{ item.label }}</option>
+          }
+        </select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha</mat-label>
+        <input
+          matInput
+          type="date"
+          #dateInput
+          [value]="date()"
+          [min]="year + '-01-01'"
+          [max]="year + '-12-31'"
+          [disabled]="saving()"
+          (change)="setDate(dateInput.value)"
+        />
+      </mat-form-field>
+    }
+  </div>
+
+  @if (roster().length) {
+    <div class="summary" aria-live="polite">
+      @if (isGrades) {
+        <span class="pill">Sin nivel: {{ pendingGrades() }}</span>
+      } @else {
+        @for (item of attendanceSummary(); track item.label) {
+          <span class="pill">{{ item.label }}: {{ item.count }}</span>
+        }
+      }
+    </div>
+    <div class="table-scroll" tabindex="0" aria-label="Registro por estudiante">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Estudiante</th>
+            <th scope="col">{{ isGrades ? 'Nivel de logro' : 'Estado' }}</th>
+            @if (isGrades) {
+              <th scope="col">Observaciones</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of roster(); track student.id) {
+            <tr>
+              <th scope="row">
+                {{ student.name }} <small>{{ student.code }}</small>
+              </th>
+              @if (isGrades) {
+                <td>
+                  <select
+                    [attr.aria-label]="'Nivel de logro de ' + student.name"
+                    [ngModel]="grades()[student.id]?.level ?? ''"
+                    [disabled]="saving()"
+                    (ngModelChange)="updateGrade(student.id, 'level', $event)"
+                  >
+                    <option value="">Pendiente</option>
+                    @for (item of levels; track item) {
+                      <option [value]="item">{{ item }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <textarea
+                    #note
+                    rows="2"
+                    maxlength="300"
+                    [attr.aria-label]="'Observaciones de ' + student.name"
+                    [value]="grades()[student.id]?.observation ?? ''"
+                    [disabled]="saving()"
+                    (input)="updateGrade(student.id, 'observation', note.value)"
+                  ></textarea>
+                </td>
+              } @else {
+                <td>
+                  <select
+                    [attr.aria-label]="'Asistencia de ' + student.name"
+                    [ngModel]="attendance()[student.id] ?? ''"
+                    [disabled]="saving()"
+                    (ngModelChange)="mark(student.id, $event)"
+                  >
+                    <option value="">Sin marcar</option>
+                    @for (item of states; track item) {
+                      <option [value]="item">{{ item }}</option>
+                    }
+                  </select>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="muted" role="status">
+      No hay estudiantes matriculados en esta sección para {{ year }}.
+    </p>
+  }
+  <div class="actions">
+    <button matButton="filled" type="button" [disabled]="!canSave()" (click)="save()">
+      Guardar {{ isGrades ? 'notas' : 'asistencia' }}
+    </button>
+    @if (message()) {
+      <span role="status">{{ message() }}</span>
+    }
+  </div>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</section>

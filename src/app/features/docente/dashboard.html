@@ -1,0 +1,81 @@
+<header class="heading">
+  <h1>Panel docente</h1>
+  <p>Diego Ramos · Miércoles {{ dateLabel }}</p>
+</header>
+
+<div class="grid">
+  <section class="panel">
+    <h2>Cursos asignados</h2>
+    <ul class="reset-list">
+      @for (assignment of store.assignments; track assignment.id) {
+        <li>{{ store.contextLabel(assignment.id) }}</li>
+      }
+    </ul>
+    <a matButton routerLink="/docente/cursos">Ver cursos</a>
+  </section>
+  <section class="panel">
+    <h2>Horario del día</h2>
+    <ul class="reset-list">
+      @for (lesson of today; track lesson.start) {
+        <li>
+          <strong>{{ lesson.start }}–{{ lesson.end }}</strong
+          ><small>{{ store.contextLabel(lesson.assignmentId) }}</small>
+        </li>
+      }
+    </ul>
+    <a matButton routerLink="/docente/horarios">Ver horario semanal</a>
+  </section>
+  <section class="panel">
+    <h2>Estudiantes matriculados</h2>
+    <strong class="lead-number">{{ store.studentCount() }}</strong>
+    <a matButton routerLink="/docente/estudiantes">Ver padrón</a>
+  </section>
+  <section class="panel">
+    <h2>Próximas evaluaciones</h2>
+    <ul class="reset-list">
+      @for (item of upcoming(); track item.id) {
+        <li>
+          <strong>{{ item.title }}</strong
+          ><small>{{ shortDate(item.date) }} · {{ store.contextLabel(item.assignmentId) }}</small>
+        </li>
+      } @empty {
+        <li class="muted">No hay evaluaciones próximas.</li>
+      }
+    </ul>
+    <a matButton routerLink="/docente/evaluaciones">Ver evaluaciones</a>
+  </section>
+  <section class="panel">
+    <h2>Pendientes de calificar</h2>
+    <ul class="reset-list">
+      @for (item of pending(); track item.id) {
+        <li>
+          <a
+            matButton
+            routerLink="/docente/notas"
+            [queryParams]="{
+              curso: item.assignmentId,
+              bimestre: item.term,
+              competencia: item.competencyId,
+            }"
+            >{{ item.title }}</a
+          >
+          <small>{{ store.contextLabel(item.assignmentId) }}</small>
+        </li>
+      } @empty {
+        <li class="muted">Estás al día con las calificaciones.</li>
+      }
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>Comunicados recientes</h2>
+    <ul class="reset-list">
+      @for (item of announcements; track item.id) {
+        <li>
+          <strong>{{ item.title }}</strong
+          ><small>{{ shortDate(item.date) }}</small>
+        </li>
+      }
+    </ul>
+    <a matButton routerLink="/docente/comunicados">Ver comunicados</a>
+  </section>
+</div>

@@ -1,0 +1,32 @@
+<header class="heading">
+  <h1>Horarios</h1>
+  <p>Horario semanal de clases asignadas.</p>
+</header>
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Día</mat-label>
+    <select matNativeControl #dayInput (change)="selected.set(dayInput.value)">
+      <option value="">Toda la semana</option>
+      @for (day of weekdays; track day) {
+        <option [value]="day">{{ day }}</option>
+      }
+    </select>
+  </mat-form-field>
+</div>
+<div class="week">
+  @for (day of days(); track day.day) {
+    <section class="panel" [class.filtered]="!!selected()">
+      <h2>{{ day.day }}</h2>
+      <ul class="reset-list">
+        @for (lesson of day.lessons; track lesson.start) {
+          <li>
+            <strong>{{ lesson.start }}–{{ lesson.end }}</strong
+            ><small>{{ store.contextLabel(lesson.assignmentId) }}</small>
+          </li>
+        } @empty {
+          <li class="muted">Sin clases programadas.</li>
+        }
+      </ul>
+    </section>
+  }
+</div>
