@@ -1,0 +1,142 @@
+<header class="admin-heading">
+  <div>
+    <h1>{{ module.title }}</h1>
+    <p>{{ module.description }}</p>
+  </div>
+  <button matButton="filled" (click)="edit()">Registrar {{ meta.singular }}</button>
+</header>
+<section class="admin-card">
+  <h2>Catálogo de {{ module.title.toLowerCase() }}</h2>
+  <div class="admin-filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Buscar</mat-label>
+      <input matInput #search [placeholder]="meta.search" (input)="query.set(search.value)" />
+    </mat-form-field>
+    @if (kind === 'usuarios') {
+      <mat-form-field appearance="outline">
+        <mat-label>Rol</mat-label>
+        <select matNativeControl #roleInput (change)="role.set(roleInput.value)">
+          <option value="">Todos los roles</option>
+          @for (item of roles; track item[0]) {
+            <option [value]="item[0]">{{ item[1] }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+    @if (kind === 'usuarios' || kind === 'docentes') {
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <select matNativeControl #statusInput (change)="status.set(statusInput.value)">
+          <option value="">Todos los estados</option>
+          @for (item of statuses; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+    @if (kind === 'grados-secciones') {
+      <mat-form-field appearance="outline">
+        <mat-label>Nivel</mat-label>
+        <select matNativeControl #levelInput (change)="level.set(levelInput.value)">
+          <option value="">Todos los niveles</option>
+          <option>Primaria</option>
+          <option>Secundaria</option>
+        </select>
+      </mat-form-field>
+    }
+  </div>
+  @if (kind === 'usuarios') {
+    <p class="admin-note">
+      Los cambios en este catálogo se aplican a los registros de demostración. El selector de acceso
+      usa perfiles precargados.
+    </p>
+  }
+
+  @if (rows().length) {
+    <div
+      class="admin-scroll"
+      tabindex="0"
+      [attr.aria-label]="'Listado de ' + module.title.toLowerCase()"
+    >
+      <table class="admin-table" [attr.aria-label]="module.title">
+        <thead>
+          <tr>
+            @for (heading of headers; track heading) {
+              <th scope="col">{{ heading }}</th>
+            }
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.entry.id) {
+            <tr>
+              @for (cell of row.cells; track $index) {
+                <td>{{ cell }}</td>
+              }
+              <td>
+                <div class="admin-actions">
+                  <button matButton (click)="detail(row.cells)">Consultar</button>
+                  <button matButton (click)="edit(row.entry)">
+                    {{ kind === 'grados-secciones' ? 'Editar capacidad' : 'Editar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="admin-note" role="status">No hay registros para esos filtros.</p>
+  }
+</section>
+
+@if (kind === 'cursos') {
+  <section class="admin-card">
+    <h2>Asignaciones docentes de 2026</h2>
+    <div class="admin-filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Docente</mat-label>
+        <select matNativeControl #teacherInput (change)="teacher.set(teacherInput.value)">
+          <option value="">Todos los docentes</option>
+          @for (item of store.data().teachers; track item.id) {
+            <option [value]="item.id">{{ item.name }}</option>
+          }
+        </select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Sección</mat-label>
+        <select matNativeControl #sectionInput (change)="section.set(sectionInput.value)">
+          <option value="">Todas las secciones</option>
+          @for (item of store.sections(); track item.id) {
+            <option [value]="item.id">{{ sectionLabel(item) }}</option>
+          }
+        </select>
+      </mat-form-field>
+    </div>
+    @if (allocated().length) {
+      <div class="admin-scroll" tabindex="0" aria-label="Listado de asignaciones">
+        <table class="admin-table" aria-label="Asignaciones docentes">
+          <thead>
+            <tr>
+              <th scope="col">Asignatura</th>
+              <th scope="col">Docente</th>
+              <th scope="col">Sección</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of allocated(); track item.id) {
+              <tr>
+                <td>{{ item.course }}</td>
+                <td>{{ item.teacher }}</td>
+                <td>{{ item.section }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="admin-note" role="status">No hay asignaciones para esos filtros.</p>
+    }
+  </section>
+}

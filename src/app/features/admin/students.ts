@@ -44,7 +44,7 @@ import { AdminStore } from './admin-store';
           <mat-label>Grado y sección</mat-label>
           <select matNativeControl formControlName="sectionId">
             <option value="">Seleccionar sección</option>
-            @for (section of store.sections; track section.id) {
+            @for (section of store.sections(); track section.id) {
               <option [value]="section.id">{{ label(section) }}</option>
             }
           </select>
@@ -110,6 +110,9 @@ export class Students {
   protected readonly grade = signal('');
   protected readonly section = signal('');
   protected readonly status = signal('');
+  protected readonly letters = computed(() =>
+    [...new Set(this.store.sections().map((item) => item.letter))].sort(),
+  );
   protected readonly columns = [
     'code',
     'name',

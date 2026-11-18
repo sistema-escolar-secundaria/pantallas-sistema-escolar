@@ -1,0 +1,108 @@
+<header class="admin-heading">
+  <div>
+    <h1>{{ module.title }}</h1>
+    <p>{{ module.description }}</p>
+  </div>
+</header>
+<section class="admin-card">
+  <h2>Consulta académica · {{ year }}</h2>
+  <div class="admin-filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Sección</mat-label>
+      <select matNativeControl #sectionInput (change)="section.set(sectionInput.value)">
+        <option value="">Todas las secciones</option>
+        @for (item of store.sections(); track item.id) {
+          <option [value]="item.id">{{ sectionLabel(item) }}</option>
+        }
+      </select>
+    </mat-form-field>
+    @if (kind === 'horarios') {
+      <mat-form-field appearance="outline">
+        <mat-label>Día</mat-label>
+        <select matNativeControl #dayInput (change)="day.set(dayInput.value)">
+          <option value="">Toda la semana</option>
+          @for (item of weekdays; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+    @if (kind === 'asistencia') {
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha</mat-label>
+        <input
+          matInput
+          type="date"
+          #dateInput
+          [value]="date()"
+          [min]="year + '-01-01'"
+          [max]="year + '-12-31'"
+          (change)="date.set(dateInput.value)"
+        />
+      </mat-form-field>
+    }
+    @if (kind === 'evaluaciones') {
+      <mat-form-field appearance="outline">
+        <mat-label>Asignatura</mat-label>
+        <select matNativeControl #courseInput (change)="course.set(courseInput.value)">
+          <option value="">Todas las asignaturas</option>
+          @for (item of courseNames; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+        <select matNativeControl #statusInput (change)="status.set(statusInput.value)">
+          <option value="">Todos los estados</option>
+          @for (item of statuses; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+  </div>
+
+  @if (kind === 'asistencia' && !dateValid()) {
+    <p role="alert" class="admin-error">Selecciona una fecha del año académico {{ year }}.</p>
+  } @else {
+    @if (kind === 'asistencia') {
+      <div class="admin-metrics" aria-label="Resumen de asistencia" aria-live="polite">
+        @for (item of summary(); track item.label) {
+          <div class="admin-metric">
+            <span>{{ item.label }}</span
+            ><strong>{{ item.count }}</strong>
+          </div>
+        }
+      </div>
+    }
+    @if (rows().length) {
+      <div
+        class="admin-scroll"
+        tabindex="0"
+        [attr.aria-label]="'Listado de ' + module.title.toLowerCase()"
+      >
+        <table class="admin-table" [attr.aria-label]="module.title">
+          <thead>
+            <tr>
+              @for (heading of headers; track heading) {
+                <th scope="col">{{ heading }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.id) {
+              <tr>
+                @for (cell of row.cells; track $index) {
+                  <td>{{ cell }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="admin-note" role="status">No hay registros para esos filtros.</p>
+    }
+  }
+</section>

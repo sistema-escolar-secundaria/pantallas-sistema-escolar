@@ -4,7 +4,19 @@ import { Role } from './core/models/profile';
 import { NAVIGATION } from './mock-data/navigation';
 import { PROFILES } from './mock-data/profiles';
 
+const adminCatalog = () => import('./features/admin/catalog').then((m) => m.Catalog);
+const adminMonitoring = () => import('./features/admin/monitoring').then((m) => m.Monitoring);
+
 const ADMIN_PAGES: Record<string, Route['loadComponent']> = {
+  usuarios: adminCatalog,
+  docentes: adminCatalog,
+  'grados-secciones': adminCatalog,
+  cursos: adminCatalog,
+  horarios: adminMonitoring,
+  asistencia: adminMonitoring,
+  evaluaciones: adminMonitoring,
+  reportes: () => import('./features/admin/reports').then((m) => m.Reports),
+  configuracion: () => import('./features/admin/settings').then((m) => m.Settings),
   dashboard: () => import('./features/admin/dashboard').then((m) => m.Dashboard),
   estudiantes: () => import('./features/admin/students').then((m) => m.Students),
   matriculas: () => import('./features/admin/enrollments').then((m) => m.Enrollments),

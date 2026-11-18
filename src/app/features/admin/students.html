@@ -44,8 +44,9 @@
         (change)="section.set(sectionInput.value)"
       >
         <option value="">Todas</option>
-        <option>A</option>
-        <option>B</option>
+        @for (item of letters(); track item) {
+          <option [value]="item">{{ item }}</option>
+        }
       </select>
     </mat-form-field>
     <mat-form-field appearance="outline"

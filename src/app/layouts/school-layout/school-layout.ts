@@ -15,6 +15,7 @@ import { Role } from '../../core/models/profile';
 import { DemoSession } from '../../core/services/demo-session';
 import { NAVIGATION } from '../../mock-data/navigation';
 import { PROFILES } from '../../mock-data/profiles';
+import { AdminStore } from '../../features/admin/admin-store';
 import { SchoolIcon } from '../../shared/ui/school-icon';
 
 @Component({
@@ -33,6 +34,7 @@ export class SchoolLayout {
   private readonly session = inject(DemoSession);
   private readonly router = inject(Router);
   protected readonly role = inject(ActivatedRoute).snapshot.data['role'] as Role;
+  protected readonly administration = this.role === 'admin' ? inject(AdminStore) : null;
   protected readonly profile = PROFILES[this.role];
   protected readonly modules = NAVIGATION[this.role];
   protected readonly dashboard = ['/', this.role, 'dashboard'];
@@ -44,6 +46,10 @@ export class SchoolLayout {
     { initialValue: false },
   );
   protected readonly menuOpen = signal(false);
+
+  protected resetPage(page: HTMLElement): void {
+    page.parentElement?.scrollTo?.(0, 0);
+  }
 
   protected signOut(): void {
     this.session.end();

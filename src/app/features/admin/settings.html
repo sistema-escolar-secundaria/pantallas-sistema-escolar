@@ -1,0 +1,34 @@
+<header class="admin-heading">
+  <div>
+    <h1>Configuración</h1>
+    <p>Actualiza los datos institucionales de la demostración.</p>
+  </div>
+</header>
+<section class="admin-card">
+  <h2>Datos institucionales</h2>
+  <form class="admin-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre institucional</mat-label
+      ><input matInput formControlName="name" maxlength="100" />
+      <mat-error>Introduce el nombre institucional.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Correo de contacto</mat-label
+      ><input matInput formControlName="email" type="email" maxlength="120" />
+      <mat-error>Introduce un correo válido.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Dirección</mat-label><input matInput formControlName="address" maxlength="180" />
+      <mat-error>Introduce la dirección.</mat-error>
+    </mat-form-field>
+    <div class="admin-actions">
+      <button matButton="filled" type="submit">Guardar configuración</button>
+      @if (feedback()) {
+        <span class="admin-message" role="status">{{ feedback() }}</span>
+      }
+    </div>
+    @if (error()) {
+      <p class="admin-error" role="alert">{{ error() }}</p>
+    }
+  </form>
+</section>

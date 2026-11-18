@@ -72,7 +72,7 @@
               (change)="sectionId.set(sectionSelect.value)"
             >
               <option value="">Seleccionar sección</option>
-              @for (section of store.sections; track section.id) {
+              @for (section of store.sections(); track section.id) {
                 <option [value]="section.id">{{ sectionLabel(section) }}</option>
               }
             </select>

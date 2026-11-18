@@ -1,0 +1,130 @@
+<header class="admin-heading">
+  <div>
+    <h1>Reportes</h1>
+    <p>Consulta los resultados académicos y financieros de los registros de demostración.</p>
+  </div>
+</header>
+<section class="admin-card">
+  <h2>
+    {{ type() === 'academic' ? 'Matrículas por año' : 'Pensiones y pagos por año de vencimiento' }}
+  </h2>
+  <div class="admin-filters">
+    <mat-form-field appearance="outline"
+      ><mat-label>Tipo de reporte</mat-label>
+      <select matNativeControl #typeInput (change)="type.set(typeInput.value)">
+        <option value="academic">Académico</option>
+        <option value="financial">Financiero</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+      ><mat-label>Año</mat-label>
+      <select matNativeControl #yearInput (change)="year.set(+yearInput.value)">
+        @for (item of years; track item) {
+          <option [value]="item">{{ item }}</option>
+        }
+      </select>
+    </mat-form-field>
+    @if (type() === 'academic') {
+      <mat-form-field appearance="outline"
+        ><mat-label>Sección</mat-label>
+        <select matNativeControl #sectionInput (change)="section.set(sectionInput.value)">
+          <option value="">Todas las secciones</option>
+          @for (item of store.sections(); track item.id) {
+            <option [value]="item.id" [selected]="item.id === section()">
+              {{ sectionsLabel(item) }}
+            </option>
+          }
+        </select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline"
+        ><mat-label>Estado</mat-label>
+        <select matNativeControl #statusInput (change)="status.set(statusInput.value)">
+          <option value="">Todos los estados</option>
+          @for (item of financialStatuses; track item) {
+            <option [value]="item" [selected]="item === status()">{{ item }}</option>
+          }
+        </select>
+      </mat-form-field>
+    }
+  </div>
+
+  @if (type() === 'academic') {
+    <div class="admin-metrics" aria-label="Totales académicos" aria-live="polite">
+      <div class="admin-metric">
+        <span>Matrículas</span><strong>{{ academic().length }}</strong>
+      </div>
+      <div class="admin-metric">
+        <span>Secciones con matrícula</span><strong>{{ academicCount() }}</strong>
+      </div>
+    </div>
+    @if (academic().length) {
+      <div class="admin-scroll" tabindex="0" aria-label="Resultados académicos">
+        <table class="admin-table" aria-label="Reporte académico">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Estudiante</th>
+              <th scope="col">Sección</th>
+              <th scope="col">Fecha de matrícula</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of academic(); track item.id) {
+              <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.student }}</td>
+                <td>{{ item.section }}</td>
+                <td>{{ date(item.date) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="admin-note" role="status">No hay matrículas para esos filtros.</p>
+    }
+  } @else {
+    <div class="admin-metrics" aria-label="Totales financieros" aria-live="polite">
+      <div class="admin-metric">
+        <span>Total de pensiones</span><strong>{{ money(totals().total) }}</strong>
+      </div>
+      <div class="admin-metric">
+        <span>Total pagado</span><strong>{{ money(totals().paid) }}</strong>
+      </div>
+      <div class="admin-metric">
+        <span>Saldo pendiente</span><strong>{{ money(totals().balance) }}</strong>
+      </div>
+    </div>
+    @if (financial().length) {
+      <div class="admin-scroll" tabindex="0" aria-label="Resultados financieros">
+        <table class="admin-table" aria-label="Reporte financiero">
+          <thead>
+            <tr>
+              <th scope="col">Estudiante</th>
+              <th scope="col">Concepto</th>
+              <th scope="col">Vencimiento</th>
+              <th scope="col">Importe</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Fecha de pago</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of financial(); track item.id) {
+              <tr>
+                <td>{{ item.student }}</td>
+                <td>{{ item.concept }}</td>
+                <td>{{ date(item.due) }}</td>
+                <td>{{ money(item.amount) }}</td>
+                <td>{{ item.status }}</td>
+                <td>{{ item.payment ? date(item.payment.date) : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="admin-note" role="status">No hay pensiones para esos filtros.</p>
+    }
+  }
+</section>

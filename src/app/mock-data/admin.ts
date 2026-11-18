@@ -1,4 +1,5 @@
 import { AdminData, Section } from '../features/admin/admin-data';
+import { ADMIN_CATALOG } from './admin-catalog';
 
 export const SECTIONS: readonly Section[] = [
   { id: 'P1A', level: 'Primaria', grade: 1, letter: 'A', capacity: 24 },
@@ -12,6 +13,8 @@ export const SECTIONS: readonly Section[] = [
 ];
 
 export const ADMIN_SEED: AdminData = {
+  ...ADMIN_CATALOG,
+  sections: SECTIONS,
   students: [
     {
       id: 's1',

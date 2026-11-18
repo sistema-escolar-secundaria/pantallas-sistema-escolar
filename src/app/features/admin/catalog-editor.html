@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content>
+  @if (section(); as item) {
+    <p>{{ item.level }} · {{ item.grade }}.° {{ item.letter }}</p>
+  }
+  <form id="catalog-form" class="admin-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    @for (field of fields; track field.key) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ field.label }}</mat-label>
+        @if (field.options; as options) {
+          <select matNativeControl [formControlName]="field.key">
+            @for (option of options; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        } @else if (field.type === 'number') {
+          <input matInput type="number" [formControlName]="field.key" min="1" step="1" />
+        } @else {
+          <input
+            matInput
+            [type]="field.type ?? 'text'"
+            [formControlName]="field.key"
+            [attr.maxlength]="field.length"
+            [attr.inputmode]="field.key === 'dni' ? 'numeric' : null"
+          />
+        }
+        <mat-error>Introduce un valor válido.</mat-error>
+      </mat-form-field>
+    }
+    @if (error) {
+      <p role="alert" class="admin-error">{{ error }}</p>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cancelar</button>
+  <button matButton="filled" type="submit" form="catalog-form">Guardar</button>
+</mat-dialog-actions>

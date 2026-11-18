@@ -158,3 +158,14 @@
     overflow-wrap: anywhere;
   }
 }
+
+.admin-message {
+  align-self: center;
+  color: var(--school-blue-ink);
+}
+.admin-scroll {
+  margin-block-start: 0.45rem;
+}
+.admin-table:has(thead th:nth-child(4)) {
+  min-inline-size: 34rem;
+}

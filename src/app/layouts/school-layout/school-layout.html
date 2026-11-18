@@ -8,7 +8,10 @@
   >
     <a class="brand" [routerLink]="dashboard" (click)="menuOpen.set(false)">
       <img src="colegio.svg" alt="" width="42" height="42" />
-      <span>Gestión Escolar<small>Primaria y Secundaria</small></span>
+      <span
+        >{{ administration?.data()?.institution?.name ?? 'Gestión Escolar'
+        }}<small>Primaria y Secundaria</small></span
+      >
     </a>
 
     <nav [attr.aria-label]="'Menú · ' + profile.label">
@@ -28,6 +31,7 @@
   </mat-sidenav>
 
   <mat-sidenav-content class="content">
+    <button type="button" class="skip-link" (click)="page.focus()">Ir al contenido</button>
     <header class="header">
       <div class="header-leading">
         @if (compact()) {
@@ -42,7 +46,12 @@
             <app-school-icon name="menu" />
           </button>
         }
-        <span class="header-label">{{ profile.label }}</span>
+        <div class="header-context">
+          @if (administration; as admin) {
+            <strong>{{ admin.data().institution.name }}</strong>
+          }
+          <span class="header-label">{{ profile.label }}</span>
+        </div>
       </div>
 
       <div class="account">
@@ -61,8 +70,8 @@
       </div>
     </header>
 
-    <main class="page">
-      <router-outlet />
+    <main #page class="page" tabindex="-1">
+      <router-outlet (activate)="resetPage(page)" />
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

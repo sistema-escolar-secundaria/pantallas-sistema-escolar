@@ -1,5 +1,5 @@
-import { Injectable, signal } from '@angular/core';
-import { ADMIN_SEED, SECTIONS } from '../../mock-data/admin';
+import { computed, Injectable, signal } from '@angular/core';
+import { ADMIN_SEED } from '../../mock-data/admin';
 import {
   AdminData,
   Enrollment,
@@ -8,10 +8,21 @@ import {
   normalize,
   Payment,
   PaymentMethod,
+  Section,
   sectionLabel,
   Student,
   YEARS,
 } from './admin-data';
+
+import {
+  CourseEntry,
+  EMAIL_PATTERN,
+  Institution,
+  ROLE_LABELS,
+  SECTION_LETTERS,
+  TeacherEntry,
+  UserAccount,
+} from './catalog-data';
 
 const KEY = 'sistema-escolar.admin.v1';
 
@@ -19,14 +30,14 @@ const KEY = 'sistema-escolar.admin.v1';
 export class AdminStore {
   private readonly state = signal(this.readInitial());
   readonly data = this.state.asReadonly();
-  readonly sections = SECTIONS;
+  readonly sections = computed(() => this.data().sections);
 
   student(id: string): Student {
     return this.data().students.find((student) => student.id === id)!;
   }
 
   section(id: string) {
-    return this.sections.find((section) => section.id === id)!;
+    return this.sections().find((section) => section.id === id)!;
   }
 
   matches(student: Student, query: string): boolean {
@@ -39,7 +50,10 @@ export class AdminStore {
     const occupied = data.enrollments.filter(
       (item) => item.year === year && item.sectionId === sectionId,
     ).length;
-    return Math.max(0, (this.section(sectionId)?.capacity ?? 0) - occupied);
+    return Math.max(
+      0,
+      (data.sections.find((section) => section.id === sectionId)?.capacity ?? 0) - occupied,
+    );
   }
 
   saveStudent(input: Omit<Student, 'id'>, id?: string): void {
@@ -48,7 +62,12 @@ export class AdminStore {
     const name = input.name.trim();
     const dni = input.dni.trim();
 
-    if (!code || !name || !/^\d{8}$/.test(dni) || !this.section(input.sectionId)) {
+    if (
+      !code ||
+      !name ||
+      !/^\d{8}$/.test(dni) ||
+      !data.sections.some((section) => section.id === input.sectionId)
+    ) {
       throw new Error('Completa los datos requeridos e introduce un DNI de ocho dígitos.');
     }
     if (data.students.some((student) => student.id !== id && student.code === code)) {
@@ -69,7 +88,7 @@ export class AdminStore {
     if (
       !data.students.some((student) => student.id === studentId) ||
       !YEARS.includes(year) ||
-      !this.section(sectionId)
+      !data.sections.some((section) => section.id === sectionId)
     ) {
       return 'Selecciona un estudiante, un año y una sección.';
     }
@@ -121,6 +140,135 @@ export class AdminStore {
     return item;
   }
 
+  saveUser(input: Omit<UserAccount, 'id'>, id?: string): void {
+    const data = this.readForWrite();
+    const name = input.name.trim();
+    const email = input.email.trim().toLowerCase();
+    if (
+      !name ||
+      !EMAIL_PATTERN.test(email) ||
+      !Object.prototype.hasOwnProperty.call(ROLE_LABELS, input.role)
+    ) {
+      throw new Error('Introduce un nombre, un correo válido y un rol.');
+    }
+    if (data.users.some((item) => item.id !== id && item.email.toLowerCase() === email)) {
+      throw new Error('Ya existe un usuario con ese correo.');
+    }
+    const users = this.upsert(data.users, { ...input, name, email }, id);
+    this.commit(data, { users }, id ? 'Usuario actualizado' : 'Usuario registrado', name);
+  }
+
+  saveTeacher(input: Omit<TeacherEntry, 'id'>, id?: string): void {
+    const data = this.readForWrite();
+    const name = input.name.trim();
+    const dni = input.dni.trim();
+    const specialty = input.specialty.trim();
+    if (!name || !/^\d{8}$/.test(dni) || !specialty) {
+      throw new Error('Introduce el nombre, un DNI de ocho dígitos y la especialidad.');
+    }
+    if (data.teachers.some((item) => item.id !== id && item.dni === dni)) {
+      throw new Error('Ya existe un docente con ese DNI.');
+    }
+    this.commit(
+      data,
+      { teachers: this.upsert(data.teachers, { ...input, name, dni, specialty }, id) },
+      id ? 'Docente actualizado' : 'Docente registrado',
+      name,
+    );
+  }
+
+  saveCourse(input: Omit<CourseEntry, 'id'>, id?: string): void {
+    const data = this.readForWrite();
+    const name = input.name.trim();
+    const description = input.description.trim();
+    if (!name || !description)
+      throw new Error('Introduce el nombre y la descripción de la asignatura.');
+    if (data.courses.some((item) => item.id !== id && normalize(item.name) === normalize(name))) {
+      throw new Error('Ya existe una asignatura con ese nombre.');
+    }
+    this.commit(
+      data,
+      { courses: this.upsert(data.courses, { name, description }, id) },
+      id ? 'Asignatura actualizada' : 'Asignatura registrada',
+      name,
+    );
+  }
+
+  saveSection(input: Omit<Section, 'id'>, id?: string): void {
+    const data = this.readForWrite();
+    const existing = id ? data.sections.find((item) => item.id === id) : undefined;
+    if (id && !existing) throw new Error('La sección seleccionada ya no está disponible.');
+
+    const section = existing
+      ? { ...existing, capacity: input.capacity }
+      : { ...input, letter: input.letter.trim().toUpperCase() };
+    if (
+      (section.level !== 'Primaria' && section.level !== 'Secundaria') ||
+      !Number.isInteger(section.grade) ||
+      section.grade < 1 ||
+      section.grade > (section.level === 'Primaria' ? 6 : 5) ||
+      !SECTION_LETTERS.includes(section.letter) ||
+      !Number.isInteger(section.capacity) ||
+      section.capacity < 1
+    )
+      throw new Error(
+        'Selecciona un grado válido para el nivel e introduce una letra y una capacidad entera mayor que cero.',
+      );
+
+    if (
+      data.sections.some(
+        (item) =>
+          item.id !== id &&
+          item.level === section.level &&
+          item.grade === section.grade &&
+          item.letter === section.letter,
+      )
+    ) {
+      throw new Error('Ya existe una sección para ese nivel, grado y letra.');
+    }
+    const occupiedByYear = new Map<number, number>();
+    for (const item of data.enrollments.filter((item) => item.sectionId === id)) {
+      occupiedByYear.set(item.year, (occupiedByYear.get(item.year) ?? 0) + 1);
+    }
+    if ([...occupiedByYear.values()].some((count) => count > section.capacity)) {
+      throw new Error('La capacidad es menor que las matrículas registradas en un año académico.');
+    }
+
+    const sections = this.upsert(data.sections, section, id);
+    this.commit(
+      data,
+      { sections },
+      id ? 'Capacidad actualizada' : 'Sección registrada',
+      sectionLabel({ ...section, id: id ?? '' }),
+    );
+  }
+
+  saveInstitution(input: Institution): void {
+    const data = this.readForWrite();
+    const institution = {
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      address: input.address.trim(),
+    };
+    if (!institution.name || !EMAIL_PATTERN.test(institution.email) || !institution.address) {
+      throw new Error(
+        'Introduce el nombre institucional, un correo de contacto válido y la dirección.',
+      );
+    }
+    this.commit(data, { institution }, 'Datos institucionales actualizados', institution.name);
+  }
+
+  private upsert<T extends { id: string }>(
+    items: readonly T[],
+    input: Omit<T, 'id'>,
+    id?: string,
+  ): T[] {
+    if (id && !items.some((item) => item.id === id))
+      throw new Error('El registro ya no está disponible.');
+    const item = { ...input, id: id ?? crypto.randomUUID() } as T;
+    return id ? items.map((current) => (current.id === id ? item : current)) : [...items, item];
+  }
+
   private readInitial(): AdminData {
     try {
       return this.readStored();
@@ -131,7 +279,7 @@ export class AdminStore {
 
   private readStored(): AdminData {
     const value = localStorage.getItem(KEY);
-    return value ? (JSON.parse(value) as AdminData) : ADMIN_SEED;
+    return value ? { ...ADMIN_SEED, ...(JSON.parse(value) as Partial<AdminData>) } : ADMIN_SEED;
   }
 
   private readForWrite(): AdminData {

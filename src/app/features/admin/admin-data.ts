@@ -1,3 +1,5 @@
+import { CatalogData } from './catalog-data';
+
 export type Level = 'Primaria' | 'Secundaria';
 export type StudentStatus = 'Activo' | 'Inactivo';
 export type PaymentMethod = 'Efectivo' | 'Transferencia' | 'Tarjeta';
@@ -47,7 +49,8 @@ export interface Activity {
   detail: string;
 }
 
-export interface AdminData {
+export interface AdminData extends CatalogData {
+  sections: readonly Section[];
   students: Student[];
   enrollments: Enrollment[];
   pensions: Pension[];
