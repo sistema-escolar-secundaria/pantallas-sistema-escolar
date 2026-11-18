@@ -1,0 +1,20 @@
+@let current = module();
+
+@if (current.path !== 'dashboard') {
+  <a matButton [routerLink]="session.dashboard()" class="back">
+    <app-school-icon name="arrow" /> Volver al panel
+  </a>
+}
+<h1>{{ current.title }}</h1>
+@if (current.path === 'dashboard') {
+  <p class="welcome">Te damos la bienvenida, {{ session.profile()?.name }}.</p>
+}
+<section class="preview" aria-labelledby="preview-title">
+  <span class="preview-icon">
+    <app-school-icon [name]="current.path === 'dashboard' ? 'dashboard' : 'module'" />
+  </span>
+  <div>
+    <h2 id="preview-title">Vista provisional</h2>
+    <p>{{ current.description }}</p>
+  </div>
+</section>

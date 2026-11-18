@@ -1,0 +1,135 @@
+import {
+  Announcement,
+  Assignment,
+  Evaluation,
+  Lesson,
+  Material,
+} from '../features/docente/teacher-data';
+
+export const ASSIGNMENTS: readonly Assignment[] = [
+  {
+    id: 'mat-2a',
+    course: 'Matemática',
+    sectionId: 'S2A',
+    competencies: [
+      { id: 'cantidad', label: 'Resuelve problemas de cantidad' },
+      { id: 'datos', label: 'Resuelve problemas de gestión de datos e incertidumbre' },
+    ],
+  },
+  {
+    id: 'mat-3a',
+    course: 'Matemática',
+    sectionId: 'P3A',
+    competencies: [
+      { id: 'cantidad', label: 'Resuelve problemas de cantidad' },
+      { id: 'forma', label: 'Resuelve problemas de forma, movimiento y localización' },
+    ],
+  },
+  {
+    id: 'ct-5a',
+    course: 'Ciencia y Tecnología',
+    sectionId: 'S5A',
+    competencies: [
+      { id: 'indaga', label: 'Indaga mediante métodos científicos' },
+      { id: 'explica', label: 'Explica el mundo físico' },
+    ],
+  },
+  {
+    id: 'mat-1b',
+    course: 'Matemática',
+    sectionId: 'P1B',
+    competencies: [{ id: 'cantidad', label: 'Resuelve problemas de cantidad' }],
+  },
+];
+
+export const LESSONS: readonly Lesson[] = [
+  { assignmentId: 'mat-1b', day: 'Lunes', start: '08:00', end: '09:30' },
+  { assignmentId: 'mat-2a', day: 'Lunes', start: '10:00', end: '11:30' },
+  { assignmentId: 'ct-5a', day: 'Martes', start: '09:30', end: '11:00' },
+  { assignmentId: 'mat-2a', day: 'Miércoles', start: '08:00', end: '09:30' },
+  { assignmentId: 'mat-3a', day: 'Miércoles', start: '10:00', end: '11:30' },
+  { assignmentId: 'ct-5a', day: 'Jueves', start: '10:00', end: '11:30' },
+  { assignmentId: 'mat-3a', day: 'Viernes', start: '08:00', end: '09:30' },
+  { assignmentId: 'mat-1b', day: 'Viernes', start: '10:00', end: '11:30' },
+];
+
+export const EVALUATIONS: readonly Evaluation[] = [
+  {
+    id: 'e-1',
+    title: 'Práctica de proporcionalidad',
+    assignmentId: 'mat-2a',
+    term: '4',
+    competencyId: 'cantidad',
+    date: '2026-11-16',
+  },
+  {
+    id: 'e-2',
+    title: 'Informe de laboratorio',
+    assignmentId: 'ct-5a',
+    term: '4',
+    competencyId: 'indaga',
+    date: '2026-11-17',
+  },
+  {
+    id: 'e-3',
+    title: 'Lectura de tablas y gráficos',
+    assignmentId: 'mat-2a',
+    term: '4',
+    competencyId: 'datos',
+    date: '2026-11-20',
+  },
+  {
+    id: 'e-4',
+    title: 'Problemas con medidas',
+    assignmentId: 'mat-3a',
+    term: '4',
+    competencyId: 'forma',
+    date: '2026-11-23',
+  },
+];
+
+export const MATERIALS: readonly Material[] = [
+  {
+    id: 'guia-proporcionalidad',
+    assignmentId: 'mat-2a',
+    title: 'Guía de proporcionalidad',
+    content:
+      'Si dos cuadernos cuestan S/ 12, calcula el precio de cinco. Explica la estrategia y comprueba tu resultado.',
+  },
+  {
+    id: 'ficha-medidas',
+    assignmentId: 'mat-3a',
+    title: 'Ficha de comparación de medidas',
+    content:
+      'Estima y luego mide tres objetos. Ordena los resultados del menor al mayor y registra la unidad.',
+  },
+  {
+    id: 'guia-laboratorio',
+    assignmentId: 'ct-5a',
+    title: 'Guía de observación de laboratorio',
+    content:
+      'Describe el fenómeno observado, escribe una pregunta investigable y organiza tus observaciones en una tabla.',
+  },
+  {
+    id: 'ficha-conteo',
+    assignmentId: 'mat-1b',
+    title: 'Ficha de conteo',
+    content:
+      'Agrupa 12 objetos en grupos de dos. Registra cuántos grupos obtuviste y dibuja tu estrategia.',
+  },
+];
+
+export const ANNOUNCEMENTS: readonly Announcement[] = [
+  {
+    id: 'av-1',
+    title: 'Cierre del cuarto bimestre',
+    date: '2026-11-17',
+    body: 'Revisa el registro de asistencia y completa las observaciones antes de la entrega de actas de diciembre.',
+  },
+  {
+    id: 'av-2',
+    title: 'Coordinación pedagógica',
+    date: '2026-11-12',
+    body: 'La reunión del equipo docente se realizará el viernes a las 13:00 en la sala de profesores.',
+  },
+];

@@ -1,0 +1,109 @@
+.school-shell {
+  block-size: 100dvh;
+  background: var(--school-background);
+}
+
+.sidebar {
+  inline-size: min(16.75rem, 86vw);
+  border: 0;
+  border-radius: 0;
+  background: var(--school-navy);
+  color: white;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.15rem;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand small {
+  display: block;
+  color: #b5c9e9;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+nav {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem;
+  border-block-start: 1px solid #ffffff24;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-block-size: 2.65rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.55rem;
+  text-decoration: none;
+  color: #d3e0f5;
+  font-size: 0.9rem;
+}
+
+.nav-link:hover {
+  background: #ffffff14;
+  color: white;
+}
+
+.nav-link.active {
+  background: #2858ab;
+  color: white;
+  font-weight: 650;
+}
+
+.header,
+.header-leading,
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  justify-content: space-between;
+  min-block-size: 4.5rem;
+  padding-inline: clamp(0.75rem, 3vw, 2rem);
+  background: var(--school-surface);
+  border-block-end: 1px solid var(--school-border);
+}
+
+.header-label,
+.account-name {
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.account-name {
+  color: var(--school-muted);
+}
+
+.sign-out app-school-icon {
+  vertical-align: middle;
+}
+
+.sign-out span {
+  margin-inline-start: 0.35rem;
+}
+
+.page {
+  max-inline-size: 86rem;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+@media (max-width: 480px) {
+  .account-name,
+  .sign-out span {
+    display: none;
+  }
+}

@@ -1,0 +1,43 @@
+@use '@angular/material' as mat;
+@use './app/features/admin/admin';
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: 'system-ui',
+      density: 0,
+    )
+  );
+
+  --school-navy: #0e2345;
+  --school-background: #f3f6fc;
+  --school-surface: #fff;
+  --school-ink: #132544;
+  --school-muted: #4f607d;
+  --school-border: #dce5f3;
+  --school-blue-soft: #e7f0ff;
+  --school-blue-ink: #174891;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--school-ink);
+  background: var(--school-background);
+  font:
+    400 1rem/1.5 system-ui,
+    sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
