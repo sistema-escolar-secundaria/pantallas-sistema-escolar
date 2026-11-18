@@ -1,0 +1,116 @@
+.login {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-block-size: 100dvh;
+}
+
+.identity {
+  display: grid;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  padding: clamp(2rem, 6vw, 6rem);
+  background:
+    radial-gradient(circle at 100% 100%, #2a58a2 0, transparent 55%),
+    linear-gradient(145deg, #0a1a35, #112d5c);
+}
+
+.identity::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#b5d0ff35 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(135deg, transparent 42%, black);
+}
+
+.identity-content {
+  position: relative;
+  z-index: 1;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-weight: 650;
+}
+
+.identity-heading {
+  margin-block-start: clamp(3rem, 12vh, 8rem);
+}
+
+h1 {
+  font-size: clamp(2.65rem, 5vw, 5.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+  margin: 0;
+}
+
+.identity p {
+  color: #c5dbff;
+  margin-block: 1.25rem 0;
+}
+
+.access {
+  display: grid;
+  place-items: center;
+  background: var(--school-surface);
+  padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.access-content {
+  inline-size: min(100%, 25rem);
+}
+
+.demo {
+  background: var(--school-blue-soft);
+  color: var(--school-blue-ink);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+h2 {
+  margin-block: 1.15rem 0.4rem;
+  font-size: 2rem;
+  letter-spacing: -0.035em;
+}
+
+.intro {
+  color: var(--school-muted);
+  margin-block: 0 1.75rem;
+}
+
+form {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.submit {
+  min-block-size: 2.85rem;
+}
+
+.recover {
+  justify-self: center;
+  margin-block-start: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .login {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .identity-heading {
+    margin-block-start: 1.5rem;
+  }
+
+  .access {
+    align-items: start;
+    padding-block: 2.5rem;
+  }
+}
